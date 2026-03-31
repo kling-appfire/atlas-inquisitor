@@ -1,0 +1,93 @@
+# ─── Dependencies ────────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# ─── Build Output ─────────────────────────────────────────────────────────────
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# ─── Wrangler / Cloudflare ────────────────────────────────────────────────────
+.wrangler/
+.dev.vars          # local secrets — never commit
+wrangler.toml.bak
+
+# ─── Environment & Secrets ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+!.dev.vars.example  # the example template IS committed
+*.local
+*.pem
+*.key
+*.cert
+
+# ─── Test & Coverage ─────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+*.lcov
+test-results/
+playwright-report/
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── OS Files ────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ─── VS Code ─────────────────────────────────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json   # share recommended extensions
+!.vscode/settings.json     # share workspace settings (non-secret)
+!.vscode/launch.json       # share debug configs
+!.vscode/tasks.json
+
+# ─── JetBrains IDEs ──────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ─── TypeScript ──────────────────────────────────────────────────────────────
+*.js.map
+*.d.ts.map
+
+# ─── n8n ─────────────────────────────────────────────────────────────────────
+# Exported workflow JSONs ARE committed (n8n/workflows/)
+# But ignore any local n8n data directory if running n8n locally
+.n8n/
+
+# ─── Report Artifacts ────────────────────────────────────────────────────────
+# Generated HTML/JSON reports are stored in R2, not in git
+reports/
+*.report.html
+*.report.json
+
+# ─── Temporary / Misc ────────────────────────────────────────────────────────
+tmp/
+temp/
+.cache/
+*.swp
+*.swo
+*~
+
+atlas-datacenter-analyzer.code-workspace
