@@ -1,0 +1,228 @@
+{
+  "_comment": "Atlassian Migration Advisor — Rules Configuration",
+  "_version": "1.0.0",
+  "_doc": "This file governs all deterministic classification logic. Thresholds, exclusions, and behavioral flags. Validate changes with: npm run validate-config",
+
+  "projects": {
+    "_comment": "Governs Jira project classification and scope decisions",
+
+    "inactivity": {
+      "_comment": "Thresholds (in days) for classifying project activity status",
+      "activeDaysThreshold": 90,
+      "dormantDaysThreshold": 180,
+      "archiveDaysThreshold": 365,
+      "_doc": "Logic: last_issue_updated < activeDaysThreshold → active; < dormantDaysThreshold → dormant; < archiveDaysThreshold → archive; else → delete candidate. Uses the more recent of lastIssueUpdated and lastIssueCreated."
+    },
+
+    "minimumIssueCounts": {
+      "_comment": "Projects with fewer issues than these values get flagged for review regardless of activity",
+      "totalIssuesForAutoArchiveReview": 10,
+      "openIssuesForDeleteReview": 0
+    },
+
+    "exclusions": {
+      "_comment": "Projects to EXCLUDE from all analysis. Add by project key.",
+      "byKey": [
+        "EXAMPLE",
+        "TEMPLATE",
+        "SANDBOX"
+      ],
+      "_doc": "These projects will not appear in any report. Use for system/template projects that are known non-candidates."
+    },
+
+    "waveAssignment": {
+      "_comment": "Scoring rules for migration wave assignment. Higher score = earlier wave.",
+      "activeBonus": 30,
+      "hasJSMBonus": 20,
+      "crossDependencyPenalty": -15,
+      "complexWorkflowPenalty": -10,
+      "largeIssuePenalty": {
+        "threshold": 10000,
+        "penalty": -20
+      },
+      "_doc": "Wave 1 = score >= 40, Wave 2 = score 20-39, Wave 3 = score < 20, No-migrate = explicitly excluded or delete candidate"
+    }
+  },
+
+  "spaces": {
+    "_comment": "Governs Confluence space classification",
+
+    "inactivity": {
+      "_comment": "Thresholds (in days) for classifying space activity status",
+      "activeDaysThreshold": 90,
+      "dormantDaysThreshold": 180,
+      "archiveDaysThreshold": 365,
+      "_doc": "Same logic as projects but based on last page created/updated in the space"
+    },
+
+    "minimumPageCounts": {
+      "totalPagesForAutoArchiveReview": 5
+    },
+
+    "exclusions": {
+      "_comment": "Spaces to EXCLUDE from all analysis. Add by space key.",
+      "byKey": [
+        "~SYSADMIN",
+        "TEMPLATE",
+        "ARCHIVE",
+        "SANDBOX"
+      ],
+      "_doc": "Personal spaces starting with ~ are often excluded. Add system spaces here."
+    }
+  },
+
+  "users": {
+    "_comment": "Governs user/identity cleanup classification",
+
+    "inactivity": {
+      "_comment": "Thresholds (in days) for user activity classification",
+      "activeLoginDaysThreshold": 90,
+      "deactivateCandidateDaysThreshold": 180,
+      "removeConsiderDaysThreshold": 365,
+      "_doc": "Based on lastLoginDate from Jira user directory. Users with no lastLoginDate are flagged as review."
+    },
+
+    "deactivation": {
+      "flagUsersWithNoLoginRecord": true,
+      "flagUsersWithInvalidEmail": true,
+      "flagUsersWithDuplicateEmail": true,
+      "_doc": "These flags add users to the deactivation review list even if their login date is within threshold"
+    },
+
+    "groups": {
+      "_comment": "Group normalization rules",
+      "reservedSystemGroups": [
+        "jira-administrators",
+        "jira-software-users",
+        "jira-servicedesk-users",
+        "confluence-administrators",
+        "confluence-users",
+        "site-admins"
+      ],
+      "flagEmptyGroups": true,
+      "flagGroupsWithSingleMember": true,
+      "_doc": "System groups are excluded from rename recommendations. Empty/single-member groups are flagged for review."
+    }
+  },
+
+  "schemes": {
+    "_comment": "Governs configuration scheme cleanup recommendations",
+
+    "unusedThresholds": {
+      "_comment": "A scheme is 'unused' if it has zero project references (after virtual deletion of §3 delete candidates)",
+      "flagZeroProjectReference": true
+    },
+
+    "sparseUseThreshold": {
+      "_comment": "A scheme is 'sparsely used' if referenced by fewer projects than this value",
+      "projectCountThreshold": 2,
+      "_doc": "Sparsely used schemes are candidates for consolidation, not immediate deletion"
+    }
+  },
+
+  "customFields": {
+    "_comment": "Governs custom field cleanup recommendations",
+
+    "unusedThresholds": {
+      "minIssuesWithValueToBeActive": 100,
+      "_doc": "Fields with fewer than this many issues having a non-null value are flagged as low-use"
+    },
+
+    "flagOrphanedContexts": true,
+    "flagFieldsOnNoScreens": true,
+    "_doc": "Orphaned contexts = field contexts not associated with any project. Fields on no screens are invisible to users but still indexed."
+  },
+
+  "workflows": {
+    "_comment": "Governs workflow analysis and deduplication",
+
+    "duplicateDetection": {
+      "enabled": true,
+      "compareByStatusNames": true,
+      "compareByTransitionNames": true,
+      "_doc": "Two workflows are flagged as potential duplicates if they share identical status names AND transition names"
+    },
+
+    "complexityFlags": {
+      "flagScriptRunnerPostFunctions": true,
+      "flagGroovyConditions": true,
+      "flagCustomValidators": true,
+      "flagExternalSystemCalls": true,
+      "_doc": "These indicate Data Center-specific capabilities that require Cloud-compatible alternatives"
+    }
+  },
+
+  "attachments": {
+    "_comment": "Governs attachment/bulk-trash identification",
+
+    "largeAttachmentThresholdMb": 25,
+    "oldAttachmentDaysThreshold": 730,
+    "flagSuspectedExportZips": true,
+    "flagSuspectedLogFiles": true,
+    "suspectedExportExtensions": [".zip", ".tar.gz", ".tgz", ".bak"],
+    "suspectedLogExtensions": [".log", ".txt"],
+    "_doc": "Large AND old attachments matching flagged extensions are bulk-trash candidates"
+  },
+
+  "dataQuality": {
+    "_comment": "Governs data integrity check thresholds",
+
+    "cloudLimits": {
+      "projectKeyMaxLength": 10,
+      "issueKeyMaxLength": 255,
+      "customFieldNameMaxLength": 255,
+      "workflowNameMaxLength": 255,
+      "statusNameMaxLength": 60,
+      "attachmentSizeLimitMb": 250,
+      "spaceKeyMaxLength": 255,
+      "pageBodyMaxKb": 5120,
+      "_doc": "Jira Cloud and Confluence Cloud hard limits. Items violating these must be fixed pre-migration."
+    }
+  },
+
+  "apps": {
+    "_comment": "Governs app inventory categorization",
+
+    "dataStoringCategories": [
+      "custom_fields",
+      "workflow_extensions",
+      "reporting",
+      "project_management",
+      "test_management",
+      "assets"
+    ],
+
+    "uiOnlyCategories": [
+      "themes",
+      "macros",
+      "gadgets"
+    ],
+
+    "flagUnlicensedApps": true,
+    "flagEndOfLifeApps": true,
+    "_doc": "Apps in dataStoringCategories require data migration planning. UI-only apps can often be swapped or dropped."
+  },
+
+  "reporting": {
+    "_comment": "Controls report output behavior",
+
+    "includeRawCountsInSummary": true,
+    "generateHTMLReports": true,
+    "generateJSONReports": true,
+    "htmlReportTheme": "atlassian",
+
+    "sections": {
+      "_comment": "Enable or disable individual report sections",
+      "01_scope": true,
+      "02_users": true,
+      "03_portfolio": true,
+      "04_data_reduction": true,
+      "05_config_inventory": true,
+      "06_config_cleanup": true,
+      "07_data_quality": true,
+      "08_apps": true,
+      "10_automations": true,
+      "11_environment": true
+    }
+  }
+}

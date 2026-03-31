@@ -1,0 +1,270 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://migration-advisor/config/rules.schema.json",
+  "title": "MigrationAdvisorRules",
+  "description": "Schema for config/rules.json — governs all deterministic classification in the Migration Advisor",
+  "type": "object",
+  "required": ["projects", "spaces", "users", "schemes", "customFields", "workflows", "attachments", "dataQuality", "apps", "reporting"],
+  "additionalProperties": false,
+
+  "definitions": {
+    "inactivityThresholds": {
+      "type": "object",
+      "required": ["activeDaysThreshold", "dormantDaysThreshold", "archiveDaysThreshold"],
+      "properties": {
+        "activeDaysThreshold": { "type": "integer", "minimum": 1 },
+        "dormantDaysThreshold": { "type": "integer", "minimum": 1 },
+        "archiveDaysThreshold": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "keyExclusions": {
+      "type": "object",
+      "required": ["byKey"],
+      "properties": {
+        "byKey": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+
+  "properties": {
+    "_comment": { "type": "string" },
+    "_version": { "type": "string" },
+    "_doc": { "type": "string" },
+
+    "projects": {
+      "type": "object",
+      "required": ["inactivity", "minimumIssueCounts", "exclusions", "waveAssignment"],
+      "properties": {
+        "_comment": { "type": "string" },
+        "inactivity": { "$ref": "#/definitions/inactivityThresholds" },
+        "minimumIssueCounts": {
+          "type": "object",
+          "required": ["totalIssuesForAutoArchiveReview", "openIssuesForDeleteReview"],
+          "properties": {
+            "totalIssuesForAutoArchiveReview": { "type": "integer", "minimum": 0 },
+            "openIssuesForDeleteReview": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "exclusions": { "$ref": "#/definitions/keyExclusions" },
+        "waveAssignment": {
+          "type": "object",
+          "required": ["activeBonus", "hasJSMBonus", "crossDependencyPenalty", "complexWorkflowPenalty", "largeIssuePenalty"],
+          "properties": {
+            "_comment": { "type": "string" },
+            "_doc": { "type": "string" },
+            "activeBonus": { "type": "integer" },
+            "hasJSMBonus": { "type": "integer" },
+            "crossDependencyPenalty": { "type": "integer", "maximum": 0 },
+            "complexWorkflowPenalty": { "type": "integer", "maximum": 0 },
+            "largeIssuePenalty": {
+              "type": "object",
+              "required": ["threshold", "penalty"],
+              "properties": {
+                "threshold": { "type": "integer", "minimum": 1 },
+                "penalty": { "type": "integer", "maximum": 0 }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "spaces": {
+      "type": "object",
+      "required": ["inactivity", "minimumPageCounts", "exclusions"],
+      "properties": {
+        "_comment": { "type": "string" },
+        "inactivity": { "$ref": "#/definitions/inactivityThresholds" },
+        "minimumPageCounts": {
+          "type": "object",
+          "required": ["totalPagesForAutoArchiveReview"],
+          "properties": {
+            "totalPagesForAutoArchiveReview": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "exclusions": { "$ref": "#/definitions/keyExclusions" }
+      }
+    },
+
+    "users": {
+      "type": "object",
+      "required": ["inactivity", "deactivation", "groups"],
+      "properties": {
+        "_comment": { "type": "string" },
+        "inactivity": {
+          "type": "object",
+          "required": ["activeLoginDaysThreshold", "deactivateCandidateDaysThreshold", "removeConsiderDaysThreshold"],
+          "properties": {
+            "_comment": { "type": "string" },
+            "_doc": { "type": "string" },
+            "activeLoginDaysThreshold": { "type": "integer", "minimum": 1 },
+            "deactivateCandidateDaysThreshold": { "type": "integer", "minimum": 1 },
+            "removeConsiderDaysThreshold": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "deactivation": {
+          "type": "object",
+          "properties": {
+            "_doc": { "type": "string" },
+            "flagUsersWithNoLoginRecord": { "type": "boolean" },
+            "flagUsersWithInvalidEmail": { "type": "boolean" },
+            "flagUsersWithDuplicateEmail": { "type": "boolean" }
+          }
+        },
+        "groups": {
+          "type": "object",
+          "required": ["reservedSystemGroups", "flagEmptyGroups", "flagGroupsWithSingleMember"],
+          "properties": {
+            "_comment": { "type": "string" },
+            "_doc": { "type": "string" },
+            "reservedSystemGroups": { "type": "array", "items": { "type": "string" } },
+            "flagEmptyGroups": { "type": "boolean" },
+            "flagGroupsWithSingleMember": { "type": "boolean" }
+          }
+        }
+      }
+    },
+
+    "schemes": {
+      "type": "object",
+      "properties": {
+        "_comment": { "type": "string" },
+        "unusedThresholds": {
+          "type": "object",
+          "properties": { "flagZeroProjectReference": { "type": "boolean" } }
+        },
+        "sparseUseThreshold": {
+          "type": "object",
+          "required": ["projectCountThreshold"],
+          "properties": {
+            "_comment": { "type": "string" },
+            "_doc": { "type": "string" },
+            "projectCountThreshold": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+
+    "customFields": {
+      "type": "object",
+      "properties": {
+        "_comment": { "type": "string" },
+        "_doc": { "type": "string" },
+        "unusedThresholds": {
+          "type": "object",
+          "properties": {
+            "minIssuesWithValueToBeActive": { "type": "integer", "minimum": 0 },
+            "_doc": { "type": "string" }
+          }
+        },
+        "flagOrphanedContexts": { "type": "boolean" },
+        "flagFieldsOnNoScreens": { "type": "boolean" }
+      }
+    },
+
+    "workflows": {
+      "type": "object",
+      "properties": {
+        "_comment": { "type": "string" },
+        "duplicateDetection": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "compareByStatusNames": { "type": "boolean" },
+            "compareByTransitionNames": { "type": "boolean" },
+            "_doc": { "type": "string" }
+          }
+        },
+        "complexityFlags": {
+          "type": "object",
+          "properties": {
+            "flagScriptRunnerPostFunctions": { "type": "boolean" },
+            "flagGroovyConditions": { "type": "boolean" },
+            "flagCustomValidators": { "type": "boolean" },
+            "flagExternalSystemCalls": { "type": "boolean" },
+            "_doc": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "attachments": {
+      "type": "object",
+      "required": ["largeAttachmentThresholdMb", "oldAttachmentDaysThreshold"],
+      "properties": {
+        "_comment": { "type": "string" },
+        "_doc": { "type": "string" },
+        "largeAttachmentThresholdMb": { "type": "integer", "minimum": 1 },
+        "oldAttachmentDaysThreshold": { "type": "integer", "minimum": 1 },
+        "flagSuspectedExportZips": { "type": "boolean" },
+        "flagSuspectedLogFiles": { "type": "boolean" },
+        "suspectedExportExtensions": { "type": "array", "items": { "type": "string" } },
+        "suspectedLogExtensions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "dataQuality": {
+      "type": "object",
+      "properties": {
+        "_comment": { "type": "string" },
+        "cloudLimits": {
+          "type": "object",
+          "properties": {
+            "_doc": { "type": "string" },
+            "projectKeyMaxLength": { "type": "integer" },
+            "issueKeyMaxLength": { "type": "integer" },
+            "customFieldNameMaxLength": { "type": "integer" },
+            "workflowNameMaxLength": { "type": "integer" },
+            "statusNameMaxLength": { "type": "integer" },
+            "attachmentSizeLimitMb": { "type": "integer" },
+            "spaceKeyMaxLength": { "type": "integer" },
+            "pageBodyMaxKb": { "type": "integer" }
+          }
+        }
+      }
+    },
+
+    "apps": {
+      "type": "object",
+      "properties": {
+        "_comment": { "type": "string" },
+        "_doc": { "type": "string" },
+        "dataStoringCategories": { "type": "array", "items": { "type": "string" } },
+        "uiOnlyCategories": { "type": "array", "items": { "type": "string" } },
+        "flagUnlicensedApps": { "type": "boolean" },
+        "flagEndOfLifeApps": { "type": "boolean" }
+      }
+    },
+
+    "reporting": {
+      "type": "object",
+      "required": ["generateHTMLReports", "generateJSONReports", "sections"],
+      "properties": {
+        "_comment": { "type": "string" },
+        "includeRawCountsInSummary": { "type": "boolean" },
+        "generateHTMLReports": { "type": "boolean" },
+        "generateJSONReports": { "type": "boolean" },
+        "htmlReportTheme": { "type": "string", "enum": ["atlassian", "minimal", "dark"] },
+        "sections": {
+          "type": "object",
+          "properties": {
+            "_comment": { "type": "string" },
+            "01_scope": { "type": "boolean" },
+            "02_users": { "type": "boolean" },
+            "03_portfolio": { "type": "boolean" },
+            "04_data_reduction": { "type": "boolean" },
+            "05_config_inventory": { "type": "boolean" },
+            "06_config_cleanup": { "type": "boolean" },
+            "07_data_quality": { "type": "boolean" },
+            "08_apps": { "type": "boolean" },
+            "10_automations": { "type": "boolean" },
+            "11_environment": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  }
+}

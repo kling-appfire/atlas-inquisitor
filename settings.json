@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "description": "Claude Code settings for atlassian-migration-advisor",
+
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(wrangler dev*)",
+      "Bash(wrangler deploy*)",
+      "Bash(npx vitest*)",
+      "Bash(npx tsc*)",
+      "Bash(npx eslint*)",
+      "Bash(node scripts/*)"
+    ],
+    "deny": [
+      "Bash(curl * POST *atlassian*)",
+      "Bash(curl * PUT *atlassian*)",
+      "Bash(curl * DELETE *atlassian*)",
+      "Bash(rm -rf /)",
+      "Bash(wrangler secret *)"
+    ]
+  },
+
+  "context": {
+    "autoInclude": [
+      "CLAUDE.md",
+      ".claude/RULES.md",
+      "config/rules.json",
+      "config/rules.schema.json"
+    ]
+  },
+
+  "notes": {
+    "secrets": "Use 'wrangler secret put' manually — never let Claude handle secret values",
+    "readonly": "This tool is READ-ONLY against Atlassian. Claude Code must never generate write operations.",
+    "rulesConfig": "config/rules.json is the single source of truth for all thresholds. Always validate after changes."
+  }
+}

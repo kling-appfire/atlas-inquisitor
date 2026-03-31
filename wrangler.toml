@@ -1,0 +1,41 @@
+name = "atlassian-migration-advisor"
+main = "src/api/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[build]
+command = "npm run build"
+
+# KV Namespace for job state tracking
+[[kv_namespaces]]
+binding = "JOB_STATE"
+id = "REPLACE_WITH_KV_ID"
+preview_id = "REPLACE_WITH_KV_PREVIEW_ID"
+
+# R2 Bucket for report artifact storage
+[[r2_buckets]]
+binding = "REPORTS"
+bucket_name = "migration-advisor-reports"
+preview_bucket_name = "migration-advisor-reports-dev"
+
+[vars]
+ENVIRONMENT = "development"
+LOG_LEVEL = "debug"
+
+# Secrets (set via: wrangler secret put SECRET_NAME)
+# JIRA_DC_BASE_URL
+# JIRA_DC_USERNAME
+# JIRA_DC_API_TOKEN
+# CONFLUENCE_DC_BASE_URL
+# CONFLUENCE_DC_USERNAME
+# CONFLUENCE_DC_API_TOKEN
+# ANTHROPIC_API_KEY
+# N8N_WEBHOOK_SECRET
+
+[[routes]]
+pattern = "migration-advisor.your-domain.com/*"
+zone_name = "your-domain.com"
+
+[dev]
+port = 8787
+local_protocol = "http"

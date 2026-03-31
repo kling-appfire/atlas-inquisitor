@@ -1,0 +1,174 @@
+{
+  "name": "Atlassian Migration Advisor",
+  "nodes": [
+    {
+      "id": "trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "path": "migration-advisor/start",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "responseData": "{ \"jobId\": \"{{ $json.jobId }}\" }"
+      }
+    },
+    {
+      "id": "section-01",
+      "name": "§1 — Scope",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [200, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WORKER_BASE_URL }}/jobs/{{ $json.jobId }}/sections/01-scope",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      }
+    },
+    {
+      "id": "section-02",
+      "name": "§2 — Users",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [400, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WORKER_BASE_URL }}/jobs/{{ $json.jobId }}/sections/02-users"
+      }
+    },
+    {
+      "id": "section-03",
+      "name": "§3 — Portfolio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [600, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WORKER_BASE_URL }}/jobs/{{ $json.jobId }}/sections/03-portfolio"
+      }
+    },
+    {
+      "id": "parallel-04-05",
+      "name": "Parallel: §4 + §5",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [800, 0],
+      "parameters": { "batchSize": 2 }
+    },
+    {
+      "id": "section-04",
+      "name": "§4 — Data Reduction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1000, -100],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WORKER_BASE_URL }}/jobs/{{ $json.jobId }}/sections/04-data-reduction"
+      }
+    },
+    {
+      "id": "section-05",
+      "name": "§5 — Config Inventory",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1000, 100],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WORKER_BASE_URL }}/jobs/{{ $json.jobId }}/sections/05-config-inventory"
+      }
+    },
+    {
+      "id": "section-06",
+      "name": "§6 — Config Cleanup",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WORKER_BASE_URL }}/jobs/{{ $json.jobId }}/sections/06-config-cleanup"
+      }
+    },
+    {
+      "id": "parallel-07-08-11",
+      "name": "Parallel: §7, §8, §11",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1400, 0],
+      "parameters": { "batchSize": 3 }
+    },
+    {
+      "id": "section-07",
+      "name": "§7 — Data Quality",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1600, -200]
+    },
+    {
+      "id": "section-08",
+      "name": "§8 — Apps",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1600, 0]
+    },
+    {
+      "id": "section-11",
+      "name": "§11 — Environment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1600, 200]
+    },
+    {
+      "id": "section-10",
+      "name": "§10 — Automations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1800, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WORKER_BASE_URL }}/jobs/{{ $json.jobId }}/sections/10-automations"
+      }
+    },
+    {
+      "id": "finalize",
+      "name": "Finalize Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2000, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.WORKER_BASE_URL }}/jobs/{{ $json.jobId }}/finalize"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": { "main": [[{ "node": "§1 — Scope" }]] },
+    "§1 — Scope": { "main": [[{ "node": "§2 — Users" }]] },
+    "§2 — Users": { "main": [[{ "node": "§3 — Portfolio" }]] },
+    "§3 — Portfolio": { "main": [[{ "node": "Parallel: §4 + §5" }]] },
+    "Parallel: §4 + §5": {
+      "main": [
+        [{ "node": "§4 — Data Reduction" }],
+        [{ "node": "§5 — Config Inventory" }]
+      ]
+    },
+    "§4 — Data Reduction": { "main": [[{ "node": "§6 — Config Cleanup" }]] },
+    "§5 — Config Inventory": { "main": [[{ "node": "§6 — Config Cleanup" }]] },
+    "§6 — Config Cleanup": { "main": [[{ "node": "Parallel: §7, §8, §11" }]] },
+    "Parallel: §7, §8, §11": {
+      "main": [
+        [{ "node": "§7 — Data Quality" }],
+        [{ "node": "§8 — Apps" }],
+        [{ "node": "§11 — Environment" }]
+      ]
+    },
+    "§8 — Apps": { "main": [[{ "node": "§10 — Automations" }]] },
+    "§10 — Automations": { "main": [[{ "node": "Finalize Report" }]] },
+    "§7 — Data Quality": { "main": [[{ "node": "Finalize Report" }]] },
+    "§11 — Environment": { "main": [[{ "node": "Finalize Report" }]] }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
