@@ -14,6 +14,15 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    // Root info
+    if (path === '/') {
+      return Response.json({
+        status: 'ok',
+        version: '0.1.0',
+        endpoints: ['GET /health', 'POST /webhooks/n8n', 'POST /jobs', 'GET /reports/{jobid}/{section}.json']
+      });
+    }
+
     // Health check
     if (path === '/health') {
       return Response.json({ status: 'ok', version: '0.1.0' });
