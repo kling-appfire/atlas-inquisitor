@@ -7,8 +7,9 @@
  * Uses the Result<T> pattern: never throws across async boundaries.
  */
 
-import type { Env } from '../api/env';
-import { fetchAllJiraPages } from '../services/pagination';
+import type { Env } from './env';
+import type { JiraPaginatedResponse } from './pagination';
+import { fetchAllJiraPages } from './pagination';
 
 export type Result<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
 
@@ -118,12 +119,12 @@ export class JiraDCAdapter {
   async getAllProjects(): Promise<Result<JiraProject[]>> {
     const projects = await fetchAllJiraPages<JiraProject>(
       (startAt, maxResults) =>
-        this.get<{ values: JiraProject[]; total: number; isLast: boolean }>(
+        this.get<JiraPaginatedResponse<JiraProject>>(
           '/project/search',
           { startAt: String(startAt), maxResults: String(maxResults), expand: 'lead,issueTypes' }
         ).then(r => {
           if (!r.ok) throw new Error(r.error);
-          return { ...r.data, values: r.data.values };
+          return r.data;
         })
     );
     return { ok: true, data: projects };
@@ -166,7 +167,7 @@ export class JiraDCAdapter {
   async getAllUsers(): Promise<Result<JiraUser[]>> {
     const users = await fetchAllJiraPages<JiraUser>(
       (startAt, maxResults) =>
-        this.get<{ values: JiraUser[]; total: number }>(
+        this.get<JiraPaginatedResponse<JiraUser>>(
           '/users/search',
           { startAt: String(startAt), maxResults: String(maxResults) }
         ).then(r => {
@@ -188,7 +189,7 @@ export class JiraDCAdapter {
   async getWorkflows(): Promise<Result<JiraWorkflow[]>> {
     const workflows = await fetchAllJiraPages<JiraWorkflow>(
       (startAt, maxResults) =>
-        this.get<{ values: JiraWorkflow[]; total: number; isLast: boolean }>(
+        this.get<JiraPaginatedResponse<JiraWorkflow>>(
           '/workflow/search',
           { startAt: String(startAt), maxResults: String(maxResults), expand: 'statuses,transitions' }
         ).then(r => {
@@ -210,7 +211,7 @@ export class JiraDCAdapter {
   async getIssueTypeSchemes(): Promise<Result<JiraIssueTypeScheme[]>> {
     const schemes = await fetchAllJiraPages<JiraIssueTypeScheme>(
       (startAt, maxResults) =>
-        this.get<{ values: JiraIssueTypeScheme[]; total: number; isLast: boolean }>(
+        this.get<JiraPaginatedResponse<JiraIssueTypeScheme>>(
           '/issuetypescheme',
           { startAt: String(startAt), maxResults: String(maxResults) }
         ).then(r => {

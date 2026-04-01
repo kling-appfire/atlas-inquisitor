@@ -15,8 +15,8 @@ import {
   getEffectiveSchemeProjectCount,
   isSchemeEffectivelyUnused,
   isAttachmentBulkTrashCandidate,
-} from '../src/rules/engine';
-import type { MigrationRules } from '../src/rules/types';
+} from './engine';
+import type { MigrationRules } from './types';
 
 // ─── Test Fixture: Rules ──────────────────────────────────────────────────────
 
@@ -238,7 +238,7 @@ describe('classifyUser', () => {
       defaultRules
     );
     expect(result.status).toBe('review');
-    expect(result.reasons.some(r => r.includes('invalid email'))).toBe(true);
+    expect(result.reasons.some((r: string) => r.includes('invalid email'))).toBe(true);
   });
 });
 

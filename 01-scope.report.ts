@@ -7,8 +7,8 @@
  * Pure transformer — no API calls, no storage side effects.
  */
 
-import type { MigrationRules } from '../rules/types';
-import { isProjectInScope, isSpaceInScope } from '../rules/engine';
+import type { MigrationRules } from './types';
+import { isProjectInScope, isSpaceInScope } from './engine';
 
 export interface ScopeReportInput {
   allProjectKeys: string[];

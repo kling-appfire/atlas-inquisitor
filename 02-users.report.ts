@@ -7,8 +7,8 @@
  * Pure transformer — no API calls, no storage side effects.
  */
 
-import type { MigrationRules } from '../rules/types';
-import { classifyUser, type UserStatus } from '../rules/engine';
+import type { MigrationRules } from './types';
+import { classifyUser, type UserStatus } from './engine';
 
 export interface RawUser {
   accountId: string;

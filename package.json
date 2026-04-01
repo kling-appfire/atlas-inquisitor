@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "wrangler dev",
-    "build": "tsc --noEmit && esbuild src/api/index.ts --bundle --outdir=dist --format=esm --platform=browser",
+    "build": "tsc --noEmit && esbuild index.ts --bundle --outdir=dist --format=esm --platform=browser",
     "deploy": "wrangler deploy",
     "test": "vitest run",
     "test:watch": "vitest",

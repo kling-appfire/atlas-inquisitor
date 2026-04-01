@@ -10,7 +10,7 @@
  * or any deterministic logic (use rules engine for that).
  */
 
-import type { Env } from '../api/env';
+import type { Env } from './env';
 
 export interface SummarizationRequest {
   sectionTitle: string;

@@ -7,14 +7,14 @@
  * Pure transformer — no API calls, no storage side effects.
  */
 
-import type { MigrationRules } from '../rules/types';
+import type { MigrationRules } from './types';
 import {
   classifyProject,
   isProjectInScope,
   isSpaceInScope,
   type ProjectStatus,
   type MigrationWave,
-} from '../rules/engine';
+} from './engine';
 
 export interface RawProject {
   key: string;
@@ -200,10 +200,10 @@ export function generatePortfolioReport(
       delete: classifiedProjects.filter(p => p.status === 'delete').length,
       outOfScope,
       totalSpaces: classifiedSpaces.length,
-      wave1Count: waveSummary['wave-1'].length,
-      wave2Count: waveSummary['wave-2'].length,
-      wave3Count: waveSummary['wave-3'].length,
-      noMigrateCount: waveSummary['no-migrate'].length,
+      wave1Count: (waveSummary['wave-1'] ?? []).length,
+      wave2Count: (waveSummary['wave-2'] ?? []).length,
+      wave3Count: (waveSummary['wave-3'] ?? []).length,
+      noMigrateCount: (waveSummary['no-migrate'] ?? []).length,
     },
   };
 }

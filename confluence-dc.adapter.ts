@@ -5,8 +5,8 @@
  * Every method is GET-only — this is a read-only analysis tool.
  */
 
-import type { Env } from '../api/env';
-import { fetchAllConfluencePages } from '../services/pagination';
+import type { Env } from './env';
+import { fetchAllConfluencePages } from './pagination';
 
 export type Result<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
 

@@ -16,12 +16,12 @@
  * Pure transformer — no API calls, no storage side effects.
  */
 
-import type { MigrationRules } from '../rules/types';
+import type { MigrationRules } from './types';
 import {
   getEffectiveSchemeProjectCount,
   isSchemeEffectivelyUnused,
   isSchemeSparslyUsed,
-} from '../rules/engine';
+} from './engine';
 
 // ─── Input Types ──────────────────────────────────────────────────────────────
 

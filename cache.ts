@@ -4,7 +4,7 @@
  * so individual report sections can re-run without re-fetching.
  */
 
-import type { Env } from '../api/env';
+import type { Env } from './env';
 
 export async function cacheSet(key: string, value: unknown, env: Env, ttlSeconds = 3600): Promise<void> {
   await env.JOB_STATE.put(key, JSON.stringify(value), { expirationTtl: ttlSeconds });

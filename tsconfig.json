@@ -16,7 +16,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
       "@rules/*": ["src/rules/*"],
@@ -26,6 +26,6 @@
       "@utils/*": ["src/utils/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "**/*.ts"],
   "exclude": ["node_modules", "dist", "tests"]
 }
